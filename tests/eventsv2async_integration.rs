@@ -107,15 +107,19 @@ mod asynctest {
 
             assert!(result.is_ok());
 
-            let e = Event::AlertAcknowledge::<()>(AlertAcknowledge {
-                dedup_key: dedup_key.clone(),
+            let e = Event::AlertAcknowledge::<()>(AlertTrigger::<()> {
+                dedup_key: Some(dedup_key.clone()),
+                ..Default::default()
             });
 
             let result = ev2.event(e).await;
 
             assert!(result.is_ok());
 
-            let e = Event::AlertResolve::<()>(AlertResolve { dedup_key });
+            let e = Event::AlertResolve::<()>(AlertTrigger::<()> {
+                dedup_key: Some(dedup_key),
+                ..Default::default()
+            });
 
             let result = ev2.event(e).await;
 
@@ -153,15 +157,19 @@ mod asynctest {
 
             assert!(result.is_ok());
 
-            let e = Event::AlertAcknowledge::<()>(AlertAcknowledge {
-                dedup_key: dedup_key.clone(),
+            let e = Event::AlertAcknowledge::<()>(AlertTrigger::<()> {
+                dedup_key: Some(dedup_key.clone()),
+                ..Default::default()
             });
 
             let result = ev2.event(e).await;
 
             assert!(result.is_ok());
 
-            let e = Event::AlertResolve::<()>(AlertResolve { dedup_key });
+            let e = Event::AlertResolve::<()>(AlertTrigger::<()> {
+                dedup_key: Some(dedup_key),
+                ..Default::default()
+            });
 
             let result = ev2.event(e).await;
 

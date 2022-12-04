@@ -80,11 +80,9 @@ impl EventsV2 {
     pub async fn event<T: Serialize>(&self, event: Event<T>) -> EventsV2Result {
         match event {
             Event::Change(c) => self.change(c).await,
-            Event::AlertTrigger(at) => self.alert_trigger(at).await,
-            Event::AlertAcknowledge(aa) => {
-                self.alert_followup(aa.dedup_key, Action::Acknowledge).await
-            }
-            Event::AlertResolve(ar) => self.alert_followup(ar.dedup_key, Action::Resolve).await,
+            Event::AlertTrigger(at) => self.alert_trigger(at, Action::Trigger).await,
+            Event::AlertAcknowledge(aa) => self.alert_trigger(aa, Action::Acknowledge).await,
+            Event::AlertResolve(ar) => self.alert_trigger(ar, Action::Resolve).await,
         }
     }
 
@@ -98,24 +96,20 @@ impl EventsV2 {
         .await
     }
 
-    async fn alert_trigger<T: Serialize>(&self, alert_trigger: AlertTrigger<T>) -> EventsV2Result {
-        let sendable_alert_trigger =
-            SendableAlertTrigger::from_alert_trigger(alert_trigger, self.integration_key.clone());
+    async fn alert_trigger<T: Serialize>(
+        &self,
+        alert_trigger: AlertTrigger<T>,
+        action: Action,
+    ) -> EventsV2Result {
+        let sendable_alert_trigger = SendableAlertTrigger::from_alert_trigger(
+            alert_trigger,
+            self.integration_key.clone(),
+            action,
+        );
 
         self.do_post(
             "https://events.pagerduty.com/v2/enqueue",
             sendable_alert_trigger,
-        )
-        .await
-    }
-
-    async fn alert_followup(&self, dedup_key: String, action: Action) -> EventsV2Result {
-        let sendable_alert_followup =
-            SendableAlertFollowup::new(dedup_key, action, self.integration_key.clone());
-
-        self.do_post(
-            "https://events.pagerduty.com/v2/enqueue",
-            sendable_alert_followup,
         )
         .await
     }

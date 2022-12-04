@@ -67,33 +67,20 @@ impl<T> SendableAlertTrigger<T>
 where
     T: Serialize,
 {
-    pub fn from_alert_trigger(alert_trigger: AlertTrigger<T>, integration_key: String) -> Self {
+    pub fn from_alert_trigger(
+        alert_trigger: AlertTrigger<T>,
+        integration_key: String,
+        action: Action,
+    ) -> Self {
         SendableAlertTrigger::<T> {
             routing_key: integration_key,
-            event_action: Action::Trigger,
+            event_action: action,
             dedup_key: alert_trigger.dedup_key,
             images: alert_trigger.images,
             links: alert_trigger.links,
             payload: alert_trigger.payload,
             client: alert_trigger.client,
             client_url: alert_trigger.client_url,
-        }
-    }
-}
-
-#[derive(Serialize)]
-pub struct SendableAlertFollowup {
-    pub routing_key: String,
-    pub dedup_key: String,
-    pub event_action: Action,
-}
-
-impl SendableAlertFollowup {
-    pub fn new(dedup_key: String, action: Action, integration_key: String) -> Self {
-        SendableAlertFollowup {
-            routing_key: integration_key,
-            event_action: action,
-            dedup_key,
         }
     }
 }
@@ -342,18 +329,5 @@ mod tests {
         let ar = serde_json::to_string(&a);
         assert!(ar.is_ok());
         assert_eq!(ar.unwrap(), "{\"dedup_key\":\"dedupkeyacknowledge\"}");
-    }
-
-    #[test]
-    fn serialize_sendable_alert_followup() {
-        let ss = SendableAlertFollowup {
-            dedup_key: "DedupkeyFollowup".to_owned(),
-            routing_key: "routingkey".to_owned(),
-            event_action: Action::Resolve,
-        };
-
-        let ssr = serde_json::to_string(&ss);
-        assert!(ssr.is_ok());
-        assert_eq!(ssr.unwrap(), "{\"routing_key\":\"routingkey\",\"dedup_key\":\"DedupkeyFollowup\",\"event_action\":\"resolve\"}");
     }
 }
