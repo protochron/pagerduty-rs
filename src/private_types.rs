@@ -31,12 +31,12 @@ where
 }
 
 #[derive(Serialize)]
-pub struct SendableAlertTrigger<T: Serialize> {
+pub struct SendableEvent<T: Serialize> {
     /// This is the 32 character Integration Key for an integration on a service or on a global ruleset.
     /// Set to None to have PagerDuty sender fill it in.
     pub routing_key: String,
 
-    pub payload: AlertTriggerPayload<T>,
+    pub payload: V2Payload<T>,
 
     /// Deduplication key for correlating triggers and resolves. The maximum permitted length of this
     /// property is 255 characters.
@@ -63,16 +63,12 @@ pub struct SendableAlertTrigger<T: Serialize> {
     pub client_url: Option<String>,
 }
 
-impl<T> SendableAlertTrigger<T>
+impl<T> SendableEvent<T>
 where
     T: Serialize,
 {
-    pub fn from_alert_trigger(
-        alert_trigger: AlertTrigger<T>,
-        integration_key: String,
-        action: Action,
-    ) -> Self {
-        SendableAlertTrigger::<T> {
+    pub fn send(alert_trigger: V2Event<T>, integration_key: String, action: Action) -> Self {
+        SendableEvent::<T> {
             routing_key: integration_key,
             event_action: action,
             dedup_key: alert_trigger.dedup_key,
@@ -183,8 +179,8 @@ mod tests {
     #[test]
     fn serialize_alert_trigger() {
         // With everything optional
-        let a = AlertTrigger {
-            payload: AlertTriggerPayload {
+        let a = V2Event {
+            payload: V2Payload {
                 summary: "Hello".to_owned(),
                 source: "hostname".to_owned(),
                 timestamp: Some(
@@ -218,8 +214,8 @@ mod tests {
         assert_eq!(ar.unwrap(), "{\"payload\":{\"severity\":\"info\",\"summary\":\"Hello\",\"source\":\"hostname\",\"timestamp\":\"2033-05-18T23:30:04.323Z\",\"component\":\"postgres\",\"group\":\"prod-datapipe\",\"class\":\"deploy\",\"custom_details\":{\"some_field\":\"Serialize this!\",\"another_field\":34}},\"dedup_key\":\"dedupkey1\",\"images\":[{\"src\":\"https://polyverse.com/static/img/SplashPageIMG/polyverse_blue.png\",\"href\":\"https://polyverse.com\",\"alt\":\"The Polyverse Logo\"}],\"links\":[{\"href\":\"https://polyverse.com\",\"text\":\"Polyverse homepage\"}],\"client\":\"Zerotect\",\"client_url\":\"https://github.com/polyverse/zerotect\"}");
 
         // With nothing optional
-        let a = AlertTrigger::<()> {
-            payload: AlertTriggerPayload {
+        let a = V2Event::<()> {
+            payload: V2Payload {
                 summary: "Hello".to_owned(),
                 source: "hostname".to_owned(),
                 timestamp: None,
@@ -247,10 +243,10 @@ mod tests {
     #[test]
     fn serialize_sendable_alert_trigger() {
         // With everything optional
-        let a = SendableAlertTrigger {
+        let a = SendableEvent {
             routing_key: "routingkey".to_owned(),
             event_action: Action::Trigger,
-            payload: AlertTriggerPayload {
+            payload: V2Payload {
                 summary: "Hello".to_owned(),
                 source: "hostname".to_owned(),
                 timestamp: Some(
@@ -284,10 +280,10 @@ mod tests {
         assert_eq!(ar.unwrap(), "{\"routing_key\":\"routingkey\",\"payload\":{\"severity\":\"info\",\"summary\":\"Hello\",\"source\":\"hostname\",\"timestamp\":\"2033-05-18T23:30:04.323Z\",\"component\":\"postgres\",\"group\":\"prod-datapipe\",\"class\":\"deploy\",\"custom_details\":{\"some_field\":\"Serialize this!\",\"another_field\":34}},\"dedup_key\":\"dedupkey1\",\"images\":[{\"src\":\"https://polyverse.com/static/img/SplashPageIMG/polyverse_blue.png\",\"href\":\"https://polyverse.com\",\"alt\":\"The Polyverse Logo\"}],\"links\":[{\"href\":\"https://polyverse.com\",\"text\":\"Polyverse homepage\"}],\"event_action\":\"trigger\",\"client\":\"Zerotect\",\"client_url\":\"https://github.com/polyverse/zerotect\"}");
 
         // With nothing optional
-        let a = SendableAlertTrigger::<()> {
+        let a = SendableEvent::<()> {
             routing_key: "routingkey".to_owned(),
             event_action: Action::Trigger,
-            payload: AlertTriggerPayload {
+            payload: V2Payload {
                 summary: "Hello".to_owned(),
                 source: "hostname".to_owned(),
                 timestamp: None,

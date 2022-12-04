@@ -100,7 +100,7 @@ pub struct Change<T: Serialize> {
 }
 
 #[derive(Serialize, Debug, Clone, Default)]
-pub struct AlertTriggerPayload<T: Serialize> {
+pub struct V2Payload<T: Serialize> {
     /// The perceived severity of the status the event is describing with respect to the affected system.
     /// This can be critical, error, warning or info.
     pub severity: Severity,
@@ -135,9 +135,9 @@ pub struct AlertTriggerPayload<T: Serialize> {
 }
 
 #[derive(Serialize, Default)]
-pub struct AlertTrigger<T: Serialize> {
+pub struct V2Event<T: Serialize> {
     /// The payload for this alert
-    pub payload: AlertTriggerPayload<T>,
+    pub payload: V2Payload<T>,
 
     /// Deduplication key for correlating triggers and resolves. The maximum permitted length of this
     /// property is 255 characters.
@@ -173,9 +173,9 @@ pub struct AlertResolve {
 
 pub enum Event<T: Serialize> {
     Change(Change<T>),
-    AlertTrigger(AlertTrigger<T>),
-    AlertAcknowledge(AlertTrigger<T>),
-    AlertResolve(AlertTrigger<T>),
+    Trigger(V2Event<T>),
+    Acknowledge(V2Event<T>),
+    Resolve(V2Event<T>),
 }
 
 fn optional_datetime_to_iso8601<S>(

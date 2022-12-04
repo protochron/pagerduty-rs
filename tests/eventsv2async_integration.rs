@@ -74,8 +74,8 @@ mod asynctest {
 
             let ev2 = EventsV2::new(ik.to_owned(), Some("pagerduty-rs test".to_owned())).unwrap();
             // With everything
-            let e = Event::AlertTrigger(AlertTrigger {
-                payload: AlertTriggerPayload {
+            let e = Event::Trigger(V2Event {
+                payload: V2Payload {
                     summary: "Asyncronously Test Alert 1 Maximum fields".to_owned(),
                     source: "hostname".to_owned(),
                     timestamp: Some(OffsetDateTime::now_utc()),
@@ -107,7 +107,7 @@ mod asynctest {
 
             assert!(result.is_ok());
 
-            let e = Event::AlertAcknowledge::<()>(AlertTrigger::<()> {
+            let e = Event::Acknowledge::<()>(V2Event::<()> {
                 dedup_key: Some(dedup_key.clone()),
                 ..Default::default()
             });
@@ -116,7 +116,7 @@ mod asynctest {
 
             assert!(result.is_ok());
 
-            let e = Event::AlertResolve::<()>(AlertTrigger::<()> {
+            let e = Event::Resolve::<()>(V2Event::<()> {
                 dedup_key: Some(dedup_key),
                 ..Default::default()
             });
@@ -135,8 +135,8 @@ mod asynctest {
 
             let ev2 = EventsV2::new(ik.to_owned(), None).unwrap();
             // With everything
-            let e = Event::AlertTrigger::<()>(AlertTrigger {
-                payload: AlertTriggerPayload {
+            let e = Event::Trigger::<()>(V2Event {
+                payload: V2Payload {
                     summary: "Asyncronously Test Alert 1 Minimum fields".to_owned(),
                     source: "hostname".to_owned(),
                     timestamp: None,
@@ -157,7 +157,7 @@ mod asynctest {
 
             assert!(result.is_ok());
 
-            let e = Event::AlertAcknowledge::<()>(AlertTrigger::<()> {
+            let e = Event::Acknowledge::<()>(V2Event::<()> {
                 dedup_key: Some(dedup_key.clone()),
                 ..Default::default()
             });
@@ -166,7 +166,7 @@ mod asynctest {
 
             assert!(result.is_ok());
 
-            let e = Event::AlertResolve::<()>(AlertTrigger::<()> {
+            let e = Event::Resolve::<()>(V2Event::<()> {
                 dedup_key: Some(dedup_key),
                 ..Default::default()
             });

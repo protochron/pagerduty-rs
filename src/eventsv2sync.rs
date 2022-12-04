@@ -80,9 +80,9 @@ impl EventsV2 {
     pub fn event<T: Serialize>(&self, event: Event<T>) -> EventsV2Result {
         match event {
             Event::Change(c) => self.change(c),
-            Event::AlertTrigger(at) => self.alert_trigger(at, Action::Trigger),
-            Event::AlertAcknowledge(aa) => self.alert_trigger(aa, Action::Acknowledge),
-            Event::AlertResolve(ar) => self.alert_trigger(ar, Action::Resolve),
+            Event::Trigger(at) => self.alert_trigger(at, Action::Trigger),
+            Event::Acknowledge(aa) => self.alert_trigger(aa, Action::Acknowledge),
+            Event::Resolve(ar) => self.alert_trigger(ar, Action::Resolve),
         }
     }
 
@@ -97,14 +97,11 @@ impl EventsV2 {
 
     fn alert_trigger<T: Serialize>(
         &self,
-        alert_trigger: AlertTrigger<T>,
+        alert_trigger: V2Event<T>,
         action: Action,
     ) -> EventsV2Result {
-        let sendable_alert_trigger = SendableAlertTrigger::from_alert_trigger(
-            alert_trigger,
-            self.integration_key.clone(),
-            action,
-        );
+        let sendable_alert_trigger =
+            SendableEvent::send(alert_trigger, self.integration_key.clone(), action);
 
         self.do_post(
             "https://events.pagerduty.com/v2/enqueue",
