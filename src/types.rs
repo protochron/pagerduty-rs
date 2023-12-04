@@ -1,4 +1,5 @@
 use serde::{ser::Error as SerializeError, Serialize, Serializer};
+use std::str::FromStr;
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
 /// Indicates the severity of the impact to the affected system.
@@ -10,6 +11,20 @@ pub enum Severity {
     #[default]
     Error,
     Critical,
+}
+
+impl FromStr for Severity {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "info" => Ok(Severity::Info),
+            "warning" => Ok(Severity::Warning),
+            "error" => Ok(Severity::Error),
+            "critical" => Ok(Severity::Critical),
+            _ => Err(format!("Invalid severity: {}", s)),
+        }
+    }
 }
 
 #[derive(Serialize)]
